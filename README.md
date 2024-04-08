@@ -18,3 +18,4 @@ Other args:
 - instruction parameter to use with pipe
 - code parameter that takes an instruction and ensures that the output is only code
 - detected if used with pipe, use message as instruction and pipe input as content
+- kinda risky: output python code and execute automatically
