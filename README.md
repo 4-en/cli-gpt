@@ -17,3 +17,4 @@ Other args:
 - when called with no message, use stdin (for pipe support)
 - instruction parameter to use with pipe
 - code parameter that takes an instruction and ensures that the output is only code
+- detected if used with pipe, use message as instruction and pipe input as content
