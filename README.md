@@ -19,3 +19,4 @@ Other args:
 - code parameter that takes an instruction and ensures that the output is only code
 - detected if used with pipe, use message as instruction and pipe input as content
 - kinda risky: output python code and execute automatically
+  - eg: "crop all images in the directory abc to 512x512" -> python gpt-code.py
