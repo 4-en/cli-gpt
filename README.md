@@ -16,3 +16,4 @@ Other args:
 - support for other llms, maybe local or custom endpoints
 - when called with no message, use stdin (for pipe support)
 - instruction parameter to use with pipe
+- code parameter that takes an instruction and ensures that the output is only code
