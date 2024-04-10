@@ -5,6 +5,7 @@ import platform
 from pathlib import Path
 
 
+from utils.config import Config
 
 def get_args(args=None):
     # parse optional arguments and then main instruction as string
@@ -42,3 +43,13 @@ def get_data_dir(app_name="cli-gpt"):
     data_dir.mkdir(parents=True, exist_ok=True)
     
     return data_dir
+
+import time
+def get_conversation(data_dir):
+    current_time = int(time.time())
+
+
+
+def main():
+    args = get_args()
+    
