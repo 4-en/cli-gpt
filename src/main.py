@@ -18,6 +18,7 @@ def get_args(args=None):
     parser.add_argument('--conv", "--conversation', type=str, help='Prints the conversation so far')
     parser.add_argument('-k', '--key', type=str, help='Sets the API-key for models that require it')
     parser.add_argument('-i', '--instruction', type=str, help='Sets a custom instruction for the model')
+    parser.add_argument('-l', '--list', action='store_true', help='Lists all previous conversations')
 
     parser.add_argument('prompt', nargs='*', help='The prompt to the model')
 
@@ -49,6 +50,9 @@ import time
 def get_conversation(data_dir):
     current_time = int(time.time())
 
+    # TODO: get last conversation time from config and load conversation if it exists
+    return None
+
 def get_prompt(args_prompt=None):
     # get prompt from args
     prompt = " ".join(args_prompt)
@@ -75,12 +79,42 @@ def get_prompt(args_prompt=None):
 
     return prompt
 
+def print_conversation():
+    # get conversation
+    conversation = get_conversation()
+    
+    if conversation:
+        print("\n".join(conversation))
+    else:
+        print("No conversation found.")
+
+def print_conversations():
+    # TODO: get all conversations and print summaries
+    pass
+
 
 
 
 def main():
     # get args
     args = get_args()
+
+
+    # handle special cases
+    # ie. print conv, set api key
+    if args.conv:
+        print_conversation()
+        return
+    elif args.list:
+        print_conversations()
+        return
+    elif args.key:
+        # set api key
+        # TODO: set api key in config
+        return
+    
+    
+
 
     # set instruction
     instruction = "You are a chatbot and are supposed to answer questions in a few sentences."
