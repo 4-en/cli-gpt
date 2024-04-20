@@ -1,4 +1,4 @@
-from base_llm import BaseLLM, Message, USERS
+from .base_llm import BaseLLM, Message, USERS
 from typing import List
 
 class DummyLLM(BaseLLM):

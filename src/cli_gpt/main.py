@@ -5,11 +5,11 @@ import platform
 from pathlib import Path
 
 
-from llm.base_llm import BaseLLM, Message, USERS
-from llm.openai_llms import GPT3
+from .llm.base_llm import BaseLLM, Message, USERS
+from .llm.openai_llms import GPT3
 
 
-from utils.config import Config
+from .utils.config import Config
 from dataclasses import dataclass
 import time
 import json
