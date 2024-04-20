@@ -3,11 +3,13 @@ import openai.resources
 from llm.base_llm import BaseLLM, Message, USERS
 from typing import List
 
-class GPT3(BaseLLM):
-    def __init__(self, api_key=None, model="gpt-3.5-turbo", *args, **kwargs):
+class GPT(BaseLLM):
+    def __init__(self, api_key=None, model="None", *args, **kwargs):
         super().__init__(*args, **kwargs)
         if api_key is None or api_key == "None":
-            raise ValueError("API key is required for GPT3")
+            raise ValueError("API key is required for OpenAI Models")
+        if model == "None":
+            raise ValueError("Model is required for OpenAI Models")
         self.client = openai.OpenAI(api_key=api_key)
         self.model = model
 
@@ -48,6 +50,10 @@ class GPT3(BaseLLM):
             print("Failed to generate text")
             print(e)
             return None
+
+class GPT3(GPT):
+    def __init__(self, api_key=None, model="gpt-3.5-turbo", *args, **kwargs):
+        super().__init__(api_key, model, *args, **kwargs)
     
 
 class GPT4(GPT3):

@@ -213,7 +213,13 @@ def main():
 
 
     # get model connection
-    model: BaseLLM = GPT3(api_key=config.api_key)
+    model: BaseLLM = None
+    try:
+        model: BaseLLM = GPT3(api_key=config.api_key)
+    except Exception as e:
+        print("Failed to create model.")
+        print(e)
+        return
     response = model.predict(instruction, conversation)
     if response is None:
         print("Failed to generate response.")
