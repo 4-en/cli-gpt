@@ -15,6 +15,9 @@ class Message:
 
 class BaseLLM(ABC):
 
+    def __init__(self, *args, **kwargs):
+        pass
+
     @abstractmethod
     def predict(self, instruction: str, messages: List[Message]) -> str:
         pass

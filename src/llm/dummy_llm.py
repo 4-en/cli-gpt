@@ -1,6 +1,7 @@
-import base_llm
+from base_llm import BaseLLM, Message, USERS
+from typing import List
 
-class DummyLLM(base_llm.BaseLLM):
+class DummyLLM(BaseLLM):
 
-    def predict(self, instruction, text):
-        return "dummy response: \n[" + text + "]"
+    def predict(self, instruction: str, messages: List[Message]) -> str:
+        return "This is a dummy response"
