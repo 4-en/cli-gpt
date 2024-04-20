@@ -2,6 +2,8 @@
 
 from setuptools import setup, find_packages
 
+
+
 deps = [
     "openai"
 ]
@@ -14,9 +16,10 @@ setup(
     install_requires=deps,
     entry_points={
         'console_scripts': [
-            'cli-gpt = main:main'
+            'cli-gpt = main:main',
+            'ask = main:main'
         ]
-    }
+    },
 )
 
 
