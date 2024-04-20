@@ -14,10 +14,8 @@ CLI-GPT is a command-line interface chatbot that leverages large language models
 To install CLI-GPT, you will need Python installed on your system. You can then install this project directly from the GitHub repository using pip:
 
 ```bash
-pip install git+https://github.com/yourusername/cli-gpt.git
+pip install git+https://github.com/4-en/cli-gpt.git
 ```
-
-Replace `https://github.com/yourusername/cli-gpt.git` with the actual URL of your repository.
 
 ## Usage
 
