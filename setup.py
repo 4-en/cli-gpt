@@ -16,8 +16,8 @@ setup(
     install_requires=deps,
     entry_points={
         'console_scripts': [
-            'cli-gpt = cli-gpt.main:main',
-            'ask = cli-gpt.main:main'
+            'cli-gpt = cli_gpt.main:main',
+            'ask = cli_gpt.main:main'
         ]
     },
 )
