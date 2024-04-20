@@ -1,22 +1,18 @@
 import openai
-from base_llm import BaseLLM, Message, USERS
+import openai.resources
+from llm.base_llm import BaseLLM, Message, USERS
 from typing import List
 
 class GPT3(BaseLLM):
     def __init__(self, api_key=None, model="gpt-3.5-turbo", *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if api_key is None:
+        if api_key is None or api_key == "None":
             raise ValueError("API key is required for GPT3")
-        openai.api_key = api_key
+        self.client = openai.OpenAI(api_key=api_key)
         self.model = model
 
     def predict(self, instruction, text):
-        response = openai.Completion.create(
-            engine=self.model,
-            prompt=instruction + text,
-            max_tokens=100
-        )
-        return response.choices[0].text
+        return self._generate_response(instruction, text)
     
     def _user_to_openai(self, user: USERS) -> str:
         if user == USERS.SYSTEM:
@@ -42,7 +38,8 @@ class GPT3(BaseLLM):
                     ]
                 ],
                 max_tokens=256,
-                temperature=0.8
+                temperature=0.8,
+                response_format = {"type": "json_object"}
             )
             if completion.choices[0].message.content.startswith("<Herobrine> "):
                 return completion.choices[0].message.content[12:]

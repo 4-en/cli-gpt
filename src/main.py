@@ -5,7 +5,52 @@ import platform
 from pathlib import Path
 
 
+from llm.base_llm import BaseLLM, Message, USERS
+from llm.openai_llms import GPT3
+
+
 from utils.config import Config
+from dataclasses import dataclass
+import time
+import json
+
+@dataclass
+class ChatConfig(Config):
+    api_key: str = "None"
+    allow_code_execution: bool = False
+    use_history: bool = True
+    last_conversation: str = "None"
+    last_conversation_time: int = 0
+
+
+def get_config(data_dir):
+    config = ChatConfig()
+    config.set_path(data_dir / "config.ini")
+    config.load_config()
+    config.save_config()
+    return config
+
+def load_conversation(data_dir, conversation_id: str) -> list[Message]:
+    conversation = []
+    conversation_file = data_dir / f"{conversation_id}.txt"
+    if not conversation_file.exists():
+        return conversation
+
+    with open(conversation_file, "r") as f:
+        lines = f.readlines()
+        for line in lines:
+            author, text = line.split(":", 1)
+            author = author.strip()
+            author = USERS[author.upper()]
+            conversation.append(Message(author, text.strip()))
+
+    return conversation
+
+def save_conversation(data_dir, conversation_id: str, conversation: list[Message]):
+    conversation_file = data_dir / f"{conversation_id}.txt"
+    with open(conversation_file, "w") as f:
+        for message in conversation:
+            f.write(f"{message.author.name}: {message.text}\n")
 
 def get_args(args=None):
     # parse optional arguments and then main instruction as string
@@ -14,8 +59,8 @@ def get_args(args=None):
     parser = argparse.ArgumentParser(description='Chat with a language model using the terminal')
 
     parser.add_argument('-n', '--new', action='store_true', help='Starts a new conversation')
-    parser.add_argument('-c', '--code', type=str, help='Forces the model to generate code')
-    parser.add_argument('--conv", "--conversation', type=str, help='Prints the conversation so far')
+    parser.add_argument('-c', '--code', action='store_true', help='Forces the model to generate code')
+    parser.add_argument("--history", action='store_true', help='Prints the conversation so far')
     parser.add_argument('-k', '--key', type=str, help='Sets the API-key for models that require it')
     parser.add_argument('-i', '--instruction', type=str, help='Sets a custom instruction for the model')
     parser.add_argument('-l', '--list', action='store_true', help='Lists all previous conversations')
@@ -46,19 +91,15 @@ def get_data_dir(app_name="cli-gpt"):
     
     return data_dir
 
-import time
-def get_conversation(data_dir):
-    current_time = int(time.time())
-
-    # TODO: get last conversation time from config and load conversation if it exists
-    return None
 
 def get_prompt(args_prompt=None):
+    if args_prompt is None:
+        args_prompt = []
     # get prompt from args
     prompt = " ".join(args_prompt)
 
     # check if prompt is empty
-    if prompt == "":
+    if prompt == None or prompt == "" or prompt.strip() == "":
         # check if input is being piped in
         if use_pipe_input():
             # get piped input
@@ -79,12 +120,13 @@ def get_prompt(args_prompt=None):
 
     return prompt
 
-def print_conversation():
+def print_conversation(messages):
     # get conversation
-    conversation = get_conversation()
+    conversation = messages
     
     if conversation:
-        print("\n".join(conversation))
+        for message in conversation:
+            print(f"{message.author}: {message.text}")
     else:
         print("No conversation found.")
 
@@ -93,58 +135,127 @@ def print_conversations():
     pass
 
 
+def get_platform_name():
+    system = platform.system()
+    if system == "Windows":
+        return "Windows"
+    elif system == "Darwin":
+        return "macOS"
+    else:
+        return "Linux"
 
 
+NEW_CONVERSATION_TIME = 60 * 60 * 24 # 1 day
 def main():
     # get args
     args = get_args()
 
+    # get data directory
+    data_dir = get_data_dir()
+
+    config = get_config(data_dir)
+
+    # check if we need to start a new conversation
+    if args.new or time.time() - config.last_conversation_time > NEW_CONVERSATION_TIME:
+        conversation_id = str(int(time.time()))
+        config.last_conversation = conversation_id
+        config.last_conversation_time = int(time.time())
+        config.save_config()
+
 
     # handle special cases
     # ie. print conv, set api key
-    if args.conv:
-        print_conversation()
+    if args.history:
+        conversation = load_conversation(data_dir, config.last_conversation)
+        print_conversation(conversation)
         return
     elif args.list:
         print_conversations()
         return
     elif args.key:
         # set api key
-        # TODO: set api key in config
+        config.api_key = args.key
+        config.save_config()
+        print("API key set.")
         return
-    
-    
-
 
     # set instruction
-    instruction = "You are a chatbot and are supposed to answer questions in a few sentences."
+    instruction = "You are a command-line chatbot and are supposed to answer questions in a few sentences. Answer in short sentences and give code examples if necessary."
+    response_types = "text"
+
+    if config.allow_code_execution:
+        instruction += "\nYou can also execute code in Python and Bash (Linux/MacOS) or PowerShell (Windows)."
+        response_types += ", python, bash, powershell"
+
+    
+
+    instruction+= "\nUse the following json format as your response: {'type': 'text', 'content': 'your response here'}"
+
+    instruction += f"\n\nResponse types: {response_types}"
+    instruction += "\nPlatform: " + get_platform_name()
 
     # get prompt
     prompt = get_prompt(args.prompt)
+    print(prompt)
 
-    # get data directory
-    data_dir = get_data_dir()
+    # convert prompt to message
+    message = Message(USERS.USER, prompt)
 
-    # get config
-    config = Config(data_dir / "config.ini")
+    # get conversation
+    conversation = []
+    if config.use_history:
+        conversation = load_conversation(data_dir, config.last_conversation)
+        n_messages = min(20, len(conversation))
+        conversation = conversation[-n_messages:]
+        conversation.append(message)
+    else:
+        conversation = [message]
 
-    # get last conversation
-    last_conversation_time = 0
-    # TODO: get last conversation time from config and load conversation if it exists
-
-    # get history
-    history = ["What is the capital of France?", "The capital of France is Paris."]
-
-    # combine history and prompt
-    predict_prompt = "\n".join(history) + "\n" + prompt
 
     # get model connection
-    model = None
-
-    # generate response
-    response = "This is a dummy response."
-    # response = model.predict(instruction, prompt)
-
-
-
+    model: BaseLLM = GPT3(api_key=config.api_key)
+    response = model.predict(instruction, conversation)
+    if response is None:
+        print("Failed to generate response.")
+        return
     
+    try:
+        # check if response is json
+        content = None
+        content_type = "text"
+        try:
+            response = json.loads(response)
+            if response["type"] == "text":
+                content = response["content"]
+                content_type = "text"
+            elif response["type"] == "python":
+                content = response["content"]
+                content_type = "python"
+            elif response["type"] == "bash":
+                content = response["content"]
+                content_type = "bash"
+            elif response["type"] == "powershell":
+                content = response["content"]
+                content_type = "powershell"
+            else:
+                raise Exception("Unknown response type")
+        except Exception as e:
+            content = response
+            content_type = "text"
+
+
+
+        # print content
+        print(content)
+        # TODO: handle code execution
+
+        # save conversation
+        conversation.append(Message(USERS.ASSISTANT, content))
+        save_conversation(data_dir, config.last_conversation, conversation)
+    except Exception:
+        print("Failed to read response.")
+
+
+
+if __name__ == "__main__":
+    main()
