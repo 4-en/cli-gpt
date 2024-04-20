@@ -19,7 +19,15 @@ pip install git+https://github.com/4-en/cli-gpt.git
 
 ## Usage
 
-Once installed, you can run the chatbot using the following command from the terminal:
+Once installed, you can run the chatbot using one of the following commands from the terminal:
+
+```bash
+ask
+```
+
+```bash
+cli-gpt
+```
 
 ```bash
 python -m cli_gpt
