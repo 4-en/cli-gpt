@@ -45,6 +45,13 @@ python -m cli_gpt
 
 ### Examples
 
+1. **Ask Anything:**
+
+   ```bash
+   ask Who are you?
+   >> I am a command-line chatbot here to help you with any questions you may have.
+   ```
+
 1. **Starting a New Conversation:**
 
    ```bash
