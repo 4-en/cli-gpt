@@ -36,21 +36,22 @@ def load_conversation(data_dir, conversation_id: str) -> list[Message]:
     conversation_file = data_dir / f"{conversation_id}.json"
     if not conversation_file.exists():
         return conversation
-
-    with open(conversation_file, "r") as f:
-        messages = json.load(f)
-        for message in messages:
-            newMessage = Message("placeholder", "placeholder")
-            for key, value in message.items():
-                if hasattr(newMessage, key):
-                    setattr(newMessage, key, value)
+    try:
+        with open(conversation_file, "r") as f:
+            messages = json.load(f)
+            for message in messages:
+                conversation.append(Message.from_json_dict(message))
+    except Exception as e:
+        print("Failed to load conversation.")
+        print("Starting new conversation.")
+        return []
 
     return conversation
 
 def save_conversation(data_dir, conversation_id: str, conversation: list[Message]):
     conversation_file = data_dir / f"{conversation_id}.json"
     with open(conversation_file, "w") as f:
-        messages = [ message.__dict__ for message in conversation]
+        messages = [ message.to_json_dict() for message in conversation]
         json.dump(messages, f)
 
 def get_args(args=None):
@@ -260,9 +261,13 @@ def main():
         print(content)
         # TODO: handle code execution
 
-        # save conversation
-        conversation.append(Message(USERS.ASSISTANT, content))
-        save_conversation(data_dir, config.last_conversation, conversation)
+        try:
+            # save conversation
+            conversation.append(Message(USERS.ASSISTANT, content))
+            save_conversation(data_dir, config.last_conversation, conversation)
+        except Exception as e:
+            print("Failed to save conversation.")
+            print(e)
     except Exception:
         print("Failed to read response.")
 
