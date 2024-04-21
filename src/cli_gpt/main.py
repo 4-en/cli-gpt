@@ -133,9 +133,27 @@ def print_conversation(messages):
         print("No conversation found.")
 
 def print_conversations():
+    print("This feature is not implemented yet.")
     # TODO: get all conversations and print summaries
     pass
 
+def handle_reply(content_type, content):
+    if content_type == "text":
+        print(content)
+    elif content_type == "python":
+        print("Code execution is not implemented yet.")
+        print("Python code:")
+        print(content)
+    elif content_type == "bash":
+        print("Code execution is not implemented yet.")
+        print("Bash code:")
+        print(content)
+    elif content_type == "powershell":
+        print("Code execution is not implemented yet.")
+        print("PowerShell code:")
+        print(content)
+    else:
+        print(content)
 
 def get_platform_name():
     system = platform.system()
@@ -186,7 +204,7 @@ def main():
     response_types = "text"
 
     if config.allow_code_execution:
-        instruction += "\nYou can also execute code in Python and Bash (Linux/MacOS) or PowerShell (Windows)."
+        instruction += "\nYou can also execute code in Python and Bash (Linux/MacOS) or PowerShell (Windows). If the users asks for a very dangerous command, you should ask for confirmation before executing it."
         response_types += ", python, bash, powershell"
 
     
@@ -255,10 +273,8 @@ def main():
             content_type = "text"
 
 
-
-        # print content
-        print(content)
-        # TODO: handle code execution
+        # handle reply
+        handle_reply(content_type, content)
 
         try:
             # save conversation
