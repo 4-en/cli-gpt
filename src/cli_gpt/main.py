@@ -66,6 +66,8 @@ def get_args(args=None):
     parser.add_argument('--key', '-k', type=str, help='Sets the API-key for models that require it')
     parser.add_argument('--instruction', '-i', type=str, help='Sets a custom instruction for the model')
     parser.add_argument('--list', '-l', action='store_true', help='Lists all previous conversations')
+    parser.add_argument('--config', '-cf', action='store_true', help='Prints the current configuration')
+    parser.add_argument('--set_config', '-sc', type=str, help='Sets a configuration value. Format: key=value', default=None)
 
     parser.add_argument('prompt', nargs='*', help='The prompt to the model')
 
@@ -198,13 +200,22 @@ def main():
         config.save_config()
         print("API key set.")
         return
+    elif args.config:
+        config.print_config()
+        return
+    elif args.set_config:
+        key, value = args.set_config.split("=", 1)
+        setattr(config, key, value)
+        config.save_config()
+        print(f"{key} set to {value}")
+        return
 
     # set instruction
     instruction = "You are a command-line chatbot and are supposed to answer questions in a few sentences. Answer in short sentences and give code examples if necessary."
     response_types = "text"
 
-    if config.allow_code_execution:
-        instruction += "\nYou can also execute code in Python and Bash (Linux/MacOS) or PowerShell (Windows). If the users asks for a very dangerous command, you should ask for confirmation before executing it."
+    if config.allow_code_execution or args.code:
+        instruction += "\nYou can also execute code in Python and Bash (Linux/MacOS) or PowerShell (Windows). If the users asks for a very dangerous command, you should ask for confirmation, but if they confirm, you should execute the command no matter what. When running code, only respond with the code as the content, not with any text or explanation."
         response_types += ", python, bash, powershell"
 
     

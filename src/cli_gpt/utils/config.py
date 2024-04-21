@@ -7,6 +7,12 @@ class KVConfig:
 
     def get_path(self):
         return self._path
+    
+    def print_config(self):
+        for key, value in self.__dict__.items():
+            if key.startswith("_"):
+                continue
+            print(f"{key}={value}")
 
     def _get_value_type(self, key, value):
         # check if key is already defined in this class
