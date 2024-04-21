@@ -15,24 +15,27 @@ class USERS(Enum):
 
 
 class Message:
-    def __init__(self, author: USERS, text: str, timestamp=None):
+    def __init__(self, author: USERS, text: str, timestamp=None, summary=None):
         self.timestamp = timestamp or int(time.time())
         self.author = author
         self.text = text
+        self.summary = summary or None
 
     def to_json_dict(self):
         return {
             "timestamp": self.timestamp,
             "author": self.author.name,
-            "text": self.text
+            "text": self.text,
+            "summary": self.summary,
         }
     
     @staticmethod
     def from_json_dict(data):
-        author = USERS[data["author"]]
-        text = data["text"]
-        m = Message(author, text, data["timestamp"])
-        return m
+        author = USERS[data.get("author", "USER")]
+        text = data.get("text", "")
+        summary = data.get("summary", None)
+        timestamp = data.get("timestamp", int(time.time()))
+        return Message(author, text, timestamp, summary)
 
 class BaseLLM(ABC):
 

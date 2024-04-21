@@ -139,19 +139,25 @@ def print_conversations():
     # TODO: get all conversations and print summaries
     pass
 
-def handle_reply(content_type, content):
+def handle_reply(content_type, content, summary=None):
     if content_type == "text":
         print(content)
     elif content_type == "python":
         print("Code execution is not implemented yet.")
+        if summary:
+            print(summary)
         print("Python code:")
         print(content)
     elif content_type == "bash":
         print("Code execution is not implemented yet.")
+        if summary:
+            print(summary)
         print("Bash code:")
         print(content)
     elif content_type == "powershell":
         print("Code execution is not implemented yet.")
+        if summary:
+            print(summary)
         print("PowerShell code:")
         print(content)
     else:
@@ -220,7 +226,7 @@ def main():
 
     
 
-    instruction+= "\nUse the following json format as your response: {'type': 'text', 'content': 'your response here'}"
+    instruction+= "\nUse the following json format as your response: {'type': 'text', 'content': 'your response here', summary: 'summary of response'}"
 
     instruction += f"\n\nResponse types: {response_types}"
     instruction += "\nPlatform: " + get_platform_name()
@@ -263,20 +269,25 @@ def main():
         # check if response is json
         content = None
         content_type = "text"
+        summary = None
         try:
             response = json.loads(response)
             if response["type"] == "text":
                 content = response["content"]
                 content_type = "text"
+                summary = response.get("summary", None)
             elif response["type"] == "python":
                 content = response["content"]
                 content_type = "python"
+                summary = response.get("summary", None)
             elif response["type"] == "bash":
                 content = response["content"]
                 content_type = "bash"
+                summary = response.get("summary", None)
             elif response["type"] == "powershell":
                 content = response["content"]
                 content_type = "powershell"
+                summary = response.get("summary", None)
             else:
                 raise Exception("Unknown response type")
         except Exception as e:
@@ -285,11 +296,11 @@ def main():
 
 
         # handle reply
-        handle_reply(content_type, content)
+        handle_reply(content_type, content, summary)
 
         try:
             # save conversation
-            conversation.append(Message(USERS.ASSISTANT, content))
+            conversation.append(Message(USERS.ASSISTANT, content, summary=summary))
             save_conversation(data_dir, config.last_conversation, conversation)
         except Exception as e:
             print("Failed to save conversation.")
