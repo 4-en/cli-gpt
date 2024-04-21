@@ -1,13 +1,12 @@
 import openai
-import openai.resources
-from .base_llm import BaseLLM, Message, USERS
+from .base_llm import BaseLLM, Message, USERS, APIKeyError
 from typing import List
 
 class GPT(BaseLLM):
     def __init__(self, api_key=None, model="None", *args, **kwargs):
         super().__init__(*args, **kwargs)
         if api_key is None or api_key == "None":
-            raise ValueError("API key is required for OpenAI Models")
+            raise APIKeyError("API Key is required for OpenAI Models")
         if model == "None":
             raise ValueError("Model is required for OpenAI Models")
         self.client = openai.OpenAI(api_key=api_key)

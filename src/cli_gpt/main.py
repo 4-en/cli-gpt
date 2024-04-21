@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import argparse
 import os
 import sys
@@ -5,7 +6,7 @@ import platform
 from pathlib import Path
 
 
-from .llm.base_llm import BaseLLM, Message, USERS
+from .llm.base_llm import BaseLLM, Message, USERS, APIKeyError
 from .llm.openai_llms import GPT3
 
 
@@ -32,25 +33,25 @@ def get_config(data_dir):
 
 def load_conversation(data_dir, conversation_id: str) -> list[Message]:
     conversation = []
-    conversation_file = data_dir / f"{conversation_id}.txt"
+    conversation_file = data_dir / f"{conversation_id}.json"
     if not conversation_file.exists():
         return conversation
 
     with open(conversation_file, "r") as f:
-        lines = f.readlines()
-        for line in lines:
-            author, text = line.split(":", 1)
-            author = author.strip()
-            author = USERS[author.upper()]
-            conversation.append(Message(author, text.strip()))
+        messages = json.load(f)
+        for message in messages:
+            newMessage = Message("placeholder", "placeholder")
+            for key, value in message.items():
+                if hasattr(newMessage, key):
+                    setattr(newMessage, key, value)
 
     return conversation
 
 def save_conversation(data_dir, conversation_id: str, conversation: list[Message]):
-    conversation_file = data_dir / f"{conversation_id}.txt"
+    conversation_file = data_dir / f"{conversation_id}.json"
     with open(conversation_file, "w") as f:
-        for message in conversation:
-            f.write(f"{message.author.name}: {message.text}\n")
+        messages = [ message.__dict__ for message in conversation]
+        json.dump(messages, f)
 
 def get_args(args=None):
     # parse optional arguments and then main instruction as string
@@ -58,12 +59,12 @@ def get_args(args=None):
 
     parser = argparse.ArgumentParser(description='Chat with a language model using the terminal')
 
-    parser.add_argument('-n', '--new', action='store_true', help='Starts a new conversation')
-    parser.add_argument('-c', '--code', action='store_true', help='Forces the model to generate code')
+    parser.add_argument('--new', '-n', action='store_true', help='Starts a new conversation')
+    parser.add_argument('--code', '-c', action='store_true', help='Forces the model to generate code')
     parser.add_argument("--history", action='store_true', help='Prints the conversation so far')
-    parser.add_argument('-k', '--key', type=str, help='Sets the API-key for models that require it')
-    parser.add_argument('-i', '--instruction', type=str, help='Sets a custom instruction for the model')
-    parser.add_argument('-l', '--list', action='store_true', help='Lists all previous conversations')
+    parser.add_argument('--key', '-k', type=str, help='Sets the API-key for models that require it')
+    parser.add_argument('--instruction', '-i', type=str, help='Sets a custom instruction for the model')
+    parser.add_argument('--list', '-l', action='store_true', help='Lists all previous conversations')
 
     parser.add_argument('prompt', nargs='*', help='The prompt to the model')
 
@@ -213,9 +214,13 @@ def main():
 
 
     # get model connection
-    model: BaseLLM = None
+    model = None
     try:
         model: BaseLLM = GPT3(api_key=config.api_key)
+    except APIKeyError as e:
+        print(e)
+        print("You can set the API key using the --key argument.")
+        return
     except Exception as e:
         print("Failed to create model.")
         print(e)
