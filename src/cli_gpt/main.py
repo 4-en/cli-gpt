@@ -198,7 +198,6 @@ def main():
 
     # get prompt
     prompt = get_prompt(args.prompt)
-    print(prompt)
 
     # convert prompt to message
     message = Message(USERS.USER, prompt)
