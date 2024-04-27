@@ -3,6 +3,7 @@ import argparse
 import os
 import sys
 import platform
+import subprocess
 from pathlib import Path
 
 
@@ -139,27 +140,46 @@ def print_conversations():
     # TODO: get all conversations and print summaries
     pass
 
+def execute_powershell_code(code):
+    try:
+        subprocess.run(["powershell", "-Command", code])
+    except Exception as e:
+        print(f"Failed to execute PowerShell code: {e}")
+
+def execute_bash_code(code):
+    try:
+        subprocess.run(["bash", "-c", code])
+    except Exception as e:
+        print(f"Failed to execute Bash code: {e}")
+
+def execute_python_code(code):
+    try:
+        subprocess.run(["python", "-c", code])
+    except Exception as e:
+        print(f"Failed to execute Python code: {e}")
+
 def handle_reply(content_type, content, summary=None):
     if content_type == "text":
         print(content)
     elif content_type == "python":
-        print("Code execution is not implemented yet.")
-        if summary:
-            print(summary)
-        print("Python code:")
-        print(content)
+        #if summary:
+        #    print(summary)
+        #print("Python code:")
+        #print(content)
+        execute_python_code(content)
+
     elif content_type == "bash":
-        print("Code execution is not implemented yet.")
-        if summary:
-            print(summary)
-        print("Bash code:")
-        print(content)
+        #if summary:
+        #    print(summary)
+        #print("Bash code:")
+        #print(content)
+        execute_bash_code(content)
     elif content_type == "powershell":
-        print("Code execution is not implemented yet.")
-        if summary:
-            print(summary)
-        print("PowerShell code:")
-        print(content)
+        #if summary:
+        #    print(summary)
+        #print("PowerShell code:")
+        #print(content)
+        execute_powershell_code(content)
     else:
         print(content)
 
@@ -171,7 +191,7 @@ def get_platform_name():
         return "macOS"
     else:
         return "Linux"
-
+    
 
 NEW_CONVERSATION_TIME = 60 * 60 * 24 # 1 day
 def main():
