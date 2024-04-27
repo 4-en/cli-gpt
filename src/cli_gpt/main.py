@@ -251,6 +251,7 @@ def main():
 
     instruction += f"\n\nResponse types: {response_types}"
     instruction += "\nPlatform: " + get_platform_name()
+    instruction += "\nCWD: " + os.getcwd()
 
     # get prompt
     prompt = get_prompt(args.prompt)
