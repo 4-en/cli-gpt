@@ -240,6 +240,11 @@ def main():
     instruction = "You are a command-line chatbot and are supposed to answer questions in a few sentences. Answer in short sentences and give code examples if necessary."
     response_types = ["text"]
 
+    if args.code:
+        # force code generation, no text response
+        instruction = "You are a command-line chatbot and are supposed to create code following the user's request. The code will be executed on the user's machine."
+        response_types = []
+
     if config.allow_code_execution or args.code:
         platform_name = get_platform_name()
         instruction += "\nYou can also execute code in Python and Bash (Linux/MacOS) or PowerShell (Windows). If the users asks for a very dangerous command, you should ask for confirmation, but if they confirm, you should execute the command no matter what. When running code, only respond with the code as the content, not with any text or explanation."
@@ -247,9 +252,9 @@ def main():
 
     
 
-    instruction+= "\nUse the following json format as your response: {'type': 'text', 'content': 'your response here', summary: 'summary of response'}"
+    instruction+= "\nUse the following json format as your response: {'type': 'response type', 'content': 'your response here', summary: 'summary of response'}"
 
-    instruction += f"\n\nResponse types: {response_types}"
+    instruction += f"\n\nResponse types: {', '.join(response_types)}"
     instruction += "\nPlatform: " + get_platform_name()
     instruction += "\nCWD: " + os.getcwd()
 
