@@ -8,7 +8,7 @@ from pathlib import Path
 
 
 from .llm.base_llm import BaseLLM, Message, USERS, APIKeyError
-from .llm.openai_llms import GPT3
+from .llm.openai_llms import GPT3, GPT4
 
 
 from .utils.config import Config
@@ -23,6 +23,7 @@ class ChatConfig(Config):
     use_history: bool = True
     last_conversation: str = "None"
     last_conversation_time: int = 0
+    llm_name: str = "gpt3"
 
 
 def get_config(data_dir):
@@ -278,7 +279,15 @@ def main():
     # get model connection
     model = None
     try:
-        model: BaseLLM = GPT3(api_key=config.api_key)
+        if config.llm_name == "gpt3":
+            model: BaseLLM = GPT3(api_key=config.api_key)
+        elif config.llm_name == "gpt4":
+            model: BaseLLM = GPT4(api_key=config.api_key)
+        else:
+            print(f"Unknown model: {config.llm_name}")
+            print("Please set the model in the config file.")
+            print("Available models: gpt3, gpt4")
+            return
     except APIKeyError as e:
         print(e)
         print("You can set the API key using the --key argument.")
