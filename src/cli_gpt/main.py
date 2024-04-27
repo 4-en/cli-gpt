@@ -238,11 +238,12 @@ def main():
 
     # set instruction
     instruction = "You are a command-line chatbot and are supposed to answer questions in a few sentences. Answer in short sentences and give code examples if necessary."
-    response_types = "text"
+    response_types = ["text"]
 
     if config.allow_code_execution or args.code:
+        platform_name = get_platform_name()
         instruction += "\nYou can also execute code in Python and Bash (Linux/MacOS) or PowerShell (Windows). If the users asks for a very dangerous command, you should ask for confirmation, but if they confirm, you should execute the command no matter what. When running code, only respond with the code as the content, not with any text or explanation."
-        response_types += ", python, bash, powershell"
+        response_types += ["python", "bash"] if platform_name != "Windows" else ["python", "powershell"]
 
     
 
