@@ -74,7 +74,8 @@ python -m cli_gpt
 4. **FFmpeg Magic:**
 
    ```bash
-   ask -n -c "Convert the file demo.mkv to a new .mp4 file that starts at 1min and ends at 2min, while also having a size of 512x512, cropped from the original center."
+   ask -n -c "Convert the file demo.mkv to a new .mp4 file that starts at 1min and ends at 2min, \
+    while also having a size of 512x512, cropped from the original center."
    ffmpeg version 5.0.1-essentials_build-www.gyan.dev Copyright (c) 2000-2022 the FFmpeg developers
      built with gcc 11.2.0 (Rev7, Built by MSYS2 project)
    
