@@ -71,6 +71,25 @@ python -m cli_gpt
    python -m cli_gpt --key "your-api-key"
    ```
 
+4. **FFmpeg Magic:**
+
+   ```bash
+   ask -n -c "Convert the file demo.mkv to a new .mp4 file that starts at 1min and ends at 2min, while also having a size of 640x640, cropped from the original center."
+   ffmpeg version 5.0.1-essentials_build-www.gyan.dev Copyright (c) 2000-2022 the FFmpeg developers
+     built with gcc 11.2.0 (Rev7, Built by MSYS2 project)
+   
+   // ...removed some ffmpeg output...
+     
+   frame= 1439 fps=400 q=-1.0 Lsize=    3262kB time=00:01:00.00 bitrate= 445.4kbits/s speed=16.7x
+   video:2239kB audio:962kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: 1.904760%
+   
+   // ...removed some ffmpeg output...
+   
+   [libx264 @ 0000023f34350840] kb/s:305.52
+   [aac @ 0000023f3460c200] Qavg: 546.231
+   ```
+   (actually worked)
+
 ## Configuration
 
 On the first run, the application will generate a default configuration file in a platform-appropriate application data directory. You can modify this configuration file to set the API key permanently or change other settings like allowing code execution.
