@@ -155,6 +155,8 @@ def execute_bash_code(code):
 
 def execute_python_code(code):
     try:
+        # use python3 instead of just python
+        # TODO: config var for python bin
         subprocess.run(["python3", "-c", code])
     except Exception as e:
         print(f"Failed to execute Python code: {e}")
