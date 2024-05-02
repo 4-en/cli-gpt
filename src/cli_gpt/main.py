@@ -155,7 +155,7 @@ def execute_bash_code(code):
 
 def execute_python_code(code):
     try:
-        subprocess.run(["python", "-c", code])
+        subprocess.run(["python3", "-c", code])
     except Exception as e:
         print(f"Failed to execute Python code: {e}")
 
