@@ -10,7 +10,7 @@ deps = [
 
 setup(
     name="cli-gpt",
-    version="0.1",
+    version="0.2",
     packages=find_packages("src"),
     package_dir={"": "src"},
     install_requires=deps,
