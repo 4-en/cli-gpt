@@ -58,4 +58,12 @@ class GPT3(GPT):
 class GPT4(GPT3):
     def __init__(self, api_key=None, model="gpt-4-turbo"):
         super().__init__(api_key, model)
+
+class GPT4o(GPT3):
+    def __init__(self, api_key=None, model="gpt-4o"):
+        super().__init__(api_key, model)
     
+
+class GPT4oMini(GPT3):
+    def __init__(self, api_key=None, model="gpt-4o-mini"):
+        super().__init__(api_key, model)

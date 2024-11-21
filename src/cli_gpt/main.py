@@ -8,7 +8,7 @@ from pathlib import Path
 
 
 from .llm.base_llm import BaseLLM, Message, USERS, APIKeyError
-from .llm.openai_llms import GPT3, GPT4
+from .llm.openai_llms import GPT3, GPT4, GPT4o, GPT4oMini
 
 
 from .utils.config import Config
@@ -23,7 +23,7 @@ class ChatConfig(Config):
     use_history: bool = True
     last_conversation: str = "None"
     last_conversation_time: int = 0
-    llm_name: str = "gpt3"
+    llm_name: str = "gpt4o"
 
 
 def get_config(data_dir):
@@ -70,6 +70,7 @@ def get_args(args=None):
     parser.add_argument('--list', '-l', action='store_true', help='Lists all previous conversations')
     parser.add_argument('--config', '-cf', action='store_true', help='Prints the current configuration')
     parser.add_argument('--set_config', '-sc', type=str, help='Sets a configuration value. Format: key=value', default=None)
+    parser.add_argument('--model', '-m', type=str, help='Sets the model to use', default=None, choices=["gpt4o", "gpt4o-mini", "gp4", "gpt3"])
 
     parser.add_argument('prompt', nargs='*', help='The prompt to the model')
 
@@ -280,16 +281,28 @@ def main():
 
     # get model connection
     model = None
+    model_name = config.llm_name
+    if args.model:
+        model_name = args.model
     try:
-        if config.llm_name == "gpt3":
+        if model_name == "gpt3":
             model: BaseLLM = GPT3(api_key=config.api_key)
-        elif config.llm_name == "gpt4":
+        elif model_name == "gpt4":
             model: BaseLLM = GPT4(api_key=config.api_key)
+        elif model_name == "gpt4o":
+            model: BaseLLM = GPT4o(api_key=config.api_key)
+        elif model_name == "gpt4o-mini":
+            model: BaseLLM = GPT4oMini(api_key=config.api_key)
         else:
             print(f"Unknown model: {config.llm_name}")
-            print("Please set the model in the config file.")
-            print("Available models: gpt3, gpt4")
+            print("Please set the model in the config file or use the --model argument.")
+            print("Available models: gpt4o, gpt4o-mini, gpt4, gpt3")
             return
+        # if model parameter was used, store in config
+        if args.model:
+            config.llm_name = model_name
+            config.save_config()
+    
     except APIKeyError as e:
         print(e)
         print("You can set the API key using the --key argument.")
