@@ -25,6 +25,14 @@ class ChatConfig(Config):
     last_conversation_time: int = 0
     llm_name: str = "gpt4o"
 
+IS_VERBOSE = False
+def log(*args, **kwargs):
+    if IS_VERBOSE:
+        print(*args, **kwargs)
+
+def enable_verbose():
+    global IS_VERBOSE
+    IS_VERBOSE = True
 
 def get_config(data_dir):
     config = ChatConfig()
@@ -71,6 +79,7 @@ def get_args(args=None):
     parser.add_argument('--config', '-cf', action='store_true', help='Prints the current configuration')
     parser.add_argument('--set_config', '-sc', type=str, help='Sets a configuration value. Format: key=value', default=None)
     parser.add_argument('--model', '-m', type=str, help='Sets the model to use', default=None, choices=["gpt4o", "gpt4o-mini", "gp4", "gpt3"])
+    parser.add_argument('--verbose', '-v', action='store_true', help='Prints more information')
 
     parser.add_argument('prompt', nargs='*', help='The prompt to the model')
 
@@ -166,23 +175,21 @@ def handle_reply(content_type, content, summary=None):
     if content_type == "text":
         print(content)
     elif content_type == "python":
-        #if summary:
-        #    print(summary)
-        #print("Python code:")
-        #print(content)
+        log("Executing Python code:")
+        log(summary)
+        log(content)
         execute_python_code(content)
 
     elif content_type == "bash":
-        #if summary:
-        #    print(summary)
-        #print("Bash code:")
-        #print(content)
+        log("Executing Bash code:")
+        log(summary)
+        log(content)
+
         execute_bash_code(content)
     elif content_type == "powershell":
-        #if summary:
-        #    print(summary)
-        #print("PowerShell code:")
-        #print(content)
+        log("Executing PowerShell code:")
+        log(summary)
+        log(content)
         execute_powershell_code(content)
     else:
         print(content)
@@ -202,6 +209,9 @@ def main():
     # get args
     args = get_args()
 
+    if args.verbose:
+        enable_verbose()
+
     # get data directory
     data_dir = get_data_dir()
 
@@ -209,6 +219,7 @@ def main():
 
     # check if we need to start a new conversation
     if args.new or time.time() - config.last_conversation_time > NEW_CONVERSATION_TIME:
+        log("Starting new conversation.")
         conversation_id = str(int(time.time()))
         config.last_conversation = conversation_id
         config.last_conversation_time = int(time.time())
@@ -218,10 +229,12 @@ def main():
     # handle special cases
     # ie. print conv, set api key
     if args.history:
+        log("Printing conversation.")
         conversation = load_conversation(data_dir, config.last_conversation)
         print_conversation(conversation)
         return
     elif args.list:
+        log("Printing conversation list.")
         print_conversations()
         return
     elif args.key:
@@ -262,6 +275,9 @@ def main():
     instruction += "\nPlatform: " + get_platform_name()
     instruction += "\nCWD: " + os.getcwd()
 
+    log("Instruction:")
+    log(instruction)
+
     # get prompt
     prompt = get_prompt(args.prompt)
 
@@ -278,6 +294,8 @@ def main():
     else:
         conversation = [message]
 
+    log("Context:")
+    log(conversation)
 
     # get model connection
     model = None
@@ -300,6 +318,7 @@ def main():
             return
         # if model parameter was used, store in config
         if args.model:
+            log(f"Setting model to {model_name}")
             config.llm_name = model_name
             config.save_config()
     
@@ -311,6 +330,9 @@ def main():
         print("Failed to create model.")
         print(e)
         return
+    
+    log("Model:")
+    log(model)
     response = model.predict(instruction, conversation)
     if response is None:
         print("Failed to generate response.")

@@ -36,6 +36,12 @@ class Message:
         summary = data.get("summary", None)
         timestamp = data.get("timestamp", int(time.time()))
         return Message(author, text, timestamp, summary)
+    
+    def __str__(self):
+        return f"{self.author.name} ({self.timestamp}): {self.text}"
+    
+    def __repr__(self):
+        return self.__str__()
 
 class BaseLLM(ABC):
 

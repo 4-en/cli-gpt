@@ -38,12 +38,11 @@ class GPT(BaseLLM):
                         } for message in messages
                     ]
                 ],
-                max_tokens=256,
+                max_tokens=1024,
                 temperature=0.8,
                 response_format = {"type": "json_object"}
             )
-            if completion.choices[0].message.content.startswith("<Herobrine> "):
-                return completion.choices[0].message.content[12:]
+
             return completion.choices[0].message.content
         except Exception as e:
             print("Failed to generate text")
